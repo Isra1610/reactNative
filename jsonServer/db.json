@@ -1,0 +1,29 @@
+{
+  "posts": [
+    {
+      "author": "Zoe",
+      "title": "Test2",
+      "id": 1
+    },
+    {
+      "author": "Israel",
+      "title": "Test3",
+      "id": 2
+    }
+  ],
+  "register": [
+    {
+      "birthdate": "16/10/1993",
+      "email": "israelrojas626@gmail.com",
+      "fullname": "Israel rojas",
+      "password": "asdqwe123A!",
+      "username": "isra1610",
+      "created_at": "Sun Sep 11 15:49:07 2022",
+      "id": 1
+    }
+  ],
+  "login": {
+    "email": "israelrojas626@gmail.com",
+    "password": "asdqwe123A!"
+  }
+}
