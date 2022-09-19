@@ -1,24 +1,27 @@
 import { StatusBar, } from 'expo-status-bar'
-import { FlatList, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, SafeAreaView, Platform } from 'react-native'
-import { Surface, Title, TextInput } from 'react-native-paper'
-import { useContext, useEffect, useState } from 'react'
+import { FlatList, StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Platform } from 'react-native'
+import { Surface, TextInput, Button } from 'react-native-paper'
+import { useEffect, useState } from 'react'
 import ModalView from '../components/ModalView'
 import { Ionicons } from "@expo/vector-icons"
 import PostCardItem from '../components/PostCardItem'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from "axios"
 import api from '../utils/api'
-import { AuthContext } from '../context/AuthContext'
 
 const AddPost = ({ navigation }) => {
 
     const [data, setData] = useState([])
+    const [auxData, setAuxData] = useState([])
+    const [dataUser, setDataUser] = useState({})
     const [visible, setVisible] = useState(false)
     const [title, setTitle] = useState('')
-    const [author, setAuthor] = useState('')
+    const [subTitle, setSubTitle] = useState('')
+    const [content, setContent] = useState('')
     const [postId, setPostId] = useState(0)
     const [loading, setLoading] = useState(false)
 
-    const { userInfo } = useContext(AuthContext)
+    const today = new Date().toLocaleString('es-VE')
 
     const headers = {
         'Content-Type': 'application/json',
@@ -27,15 +30,22 @@ const AddPost = ({ navigation }) => {
 
     const getPosts = async () => {
         setLoading(true)
-        const response = await axios.get(`${api}/posts`)
+        let userInfo = await AsyncStorage.getItem('userInfo')
+        userInfo = JSON.parse(userInfo)
+        const response = await axios.get(`${api}/posts?_embed=comments`)
+        setDataUser(userInfo)
         setData(response?.data)
+        setAuxData(response?.data)
         setLoading(false)
     }
 
-    const addPost = async (title, author) => {
+    const addPost = async (title, subTitle, content) => {
         const body = {
-            "author": author,
             "title": title,
+            "subTitle": subTitle,
+            "content": content,
+            "userId": dataUser.id,
+            "created_at": today,
         }
         await axios.post(`${api}/posts`, body, { headers })
             .then(resJson => {
@@ -43,10 +53,13 @@ const AddPost = ({ navigation }) => {
             }).catch(e => { console.log(e) })
     }
 
-    const editPost = (postId, title, author) => {
+    const editPost = (title, subTitle, content, postId) => {
         const body = {
-            "author": author,
             "title": title,
+            "subTitle": subTitle,
+            "content": content,
+            "userId": dataUser.id,
+            "created_At": today,
         }
         axios.put(`${api}/posts/${postId}`, body, { headers })
             .then(resJson => {
@@ -54,33 +67,62 @@ const AddPost = ({ navigation }) => {
             }).catch(e => { console.log(e) })
     }
 
-    const deletePost = (postId) => {
-        axios.delete(`${api}/posts/${postId}`, { headers })
+    const deletePost = async (postId) => {
+        await axios.delete(`${api}/posts/${postId}`, { headers })
             .then(resJson => {
                 getPosts()
+            }).catch(e => { console.log(e) })
+    }
+
+    const addComent = async (comment, postId) => {
+        const body = {
+            "username": dataUser.username,
+            "postId": postId,
+            "content": comment,
+            "created_at": today,
+        }
+        await axios.post(`${api}/comments`, body, { headers })
+            .then(resJson => {
+                updatePost()
             }).catch(e => { console.log(e) })
     }
 
     const updatePost = () => {
         getPosts()
         setVisible(false)
-        setAuthor('')
         setTitle('')
         setPostId(0)
+        setContent('')
+        setSubTitle('')
     }
 
-    const edit = (id, title, author) => {
+    const addNewPost = () => {
         setVisible(true)
-        setPostId(id)
+        setTitle('')
+        setPostId(0)
+        setContent('')
+        setSubTitle('')
+    }
+
+    const edit = (postId, title, subTitle, content) => {
+        setVisible(true)
         setTitle(title)
-        setAuthor(author)
+        setPostId(postId)
+        setSubTitle(subTitle)
+        setContent(content)
     }
 
     useEffect(() => {
         getPosts()
     }, [])
 
-    // console.log(userInfo)
+    const filterData = (filtername) => {
+        if (filtername === 'myposts') {
+            setData(data.filter(item => item.userId === dataUser.id))
+        } else {
+            setData(auxData)
+        }
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -89,10 +131,15 @@ const AddPost = ({ navigation }) => {
                 <TouchableOpacity onPress={() => setVisible(true)}>
                     <Ionicons name="arrow-back" size={30} onPress={() => navigation.navigate('Home')}></Ionicons>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => setVisible(true)}>
+                <TouchableOpacity style={styles.button} onPress={() => addNewPost()}>
                     <Text style={styles.buttonText}>Agregar Post</Text>
                 </TouchableOpacity>
             </Surface>
+            <View style={styles.buttonsWrapper}>
+                <Button onPress={() => filterData('myposts')}>Mis Posts</Button>
+                <Text> / </Text>
+                <Button onPress={() => filterData('allposts')}>Todos los Posts</Button>
+            </View>
             <FlatList
                 data={data}
                 keyExtractor={(item, index) => item.id + index.toString()}
@@ -101,35 +148,47 @@ const AddPost = ({ navigation }) => {
                 renderItem={({ item }) => (
                     <PostCardItem
                         title={item.title}
-                        author={item.author}
-                        onEdit={() => edit(item.id, item.title, item.author)}
+                        subTitle={item.subTitle}
+                        content={item.content}
+                        commentId={item.id}
+                        addComent={addComent}
+                        comments={item.comments}
+                        navigate={() => navigation.navigate('Details', { id: item.id })}
+                        myPost={dataUser.id === item.userId ? true : false}
+                        onEdit={() => edit(item.id, item.title, item.subTitle, item.content)}
                         onDelete={() => deletePost(item.id)}
                     />
                 )}
             />
             <ModalView
                 visible={visible}
-                title="Add Post"
+                title="Agrega un Post"
                 onDismiss={() => setVisible(false)}
                 onSubmit={() => {
-                    if (postId && title && author) {
-                        editPost(postId, title, author)
+                    if (postId && title && subTitle && content) {
+                        editPost(postId, title, subTitle, content)
                     } else {
-                        addPost(title, author)
+                        addPost(title, subTitle, content)
                     }
                 }}
                 cancelable
             >
                 <TextInput
-                    label="Title"
+                    label="Titulo"
                     value={title}
                     onChangeText={(text) => setTitle(text)}
                     mode="outlined"
                 />
                 <TextInput
-                    label="Author"
-                    value={author}
-                    onChangeText={(text) => setAuthor(text)}
+                    label="Subtitulo"
+                    value={subTitle}
+                    onChangeText={(text) => setSubTitle(text)}
+                    mode="outlined"
+                />
+                <TextInput
+                    label="Comentario"
+                    value={content}
+                    onChangeText={(text) => setContent(text)}
                     mode="outlined"
                 />
             </ModalView>
@@ -142,6 +201,12 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         justifyContent: 'center',
+    },
+    buttonsWrapper: {
+        marginTop: 20,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     header: {
         marginTop: Platform.OS === 'android' ? 24 : 0,

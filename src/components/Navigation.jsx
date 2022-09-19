@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import HomeScreen from '../screens/ProfileScreen'
 import LoginScreen from '../screens/Login'
 import RegisterScreen from '../screens/Register'
+import Details from '../screens/Details'
 import { AuthContext } from '../context/AuthContext'
 import SplashScreen from '../screens/SplashScreen'
 import AddPost from '../screens/AddPost'
@@ -27,6 +28,8 @@ const Navigation = () => {
                     <>
                         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
                         <Stack.Screen name="AddPost" component={AddPost} options={{ headerShown: false }} />
+                        <Stack.Screen name="Details" component={Details} options={{ headerShown: false }}
+                        />
                     </>
                 ) : (
                     <>

@@ -1,14 +1,36 @@
 {
   "posts": [
     {
-      "author": "Zoe",
-      "title": "Test2",
+      "title": "Mi casa",
+      "subTitle": "Remodelación",
+      "content": "Ya tiene piso nuevo!!",
+      "userId": 1,
+      "created_at": "Sun Sep 18 07:23:03 2022",
       "id": 1
     },
     {
-      "author": "Israel",
-      "title": "Test3",
+      "title": "Mi segundo post",
+      "subTitle": "Test2",
+      "content": "Comentario 2",
+      "userId": 2,
+      "created_at": "Sun Sep 18 08:53:06 2022",
       "id": 2
+    },
+    {
+      "title": "Mi tercer post",
+      "subTitle": "React native",
+      "content": "Filtrando",
+      "userId": 2,
+      "created_at": "Sun Sep 18 11:01:16 2022",
+      "id": 3
+    },
+    {
+      "title": "Mi último post",
+      "subTitle": "Último post test",
+      "content": "Último post prueba",
+      "userId": 1,
+      "created_at": "Sun Sep 18 16:13:00 2022",
+      "id": 4
     }
   ],
   "register": [
@@ -20,6 +42,52 @@
       "username": "isra1610",
       "created_at": "Sun Sep 11 15:49:07 2022",
       "id": 1
+    },
+    {
+      "birthdate": "13/06/1992",
+      "email": "asd@gmail.com",
+      "fullname": "celeste caceres",
+      "password": "asdqwe123A!",
+      "username": "celeste13",
+      "created_at": "Sun Sep 18 08:16:02 2022",
+      "id": 2
+    }
+  ],
+  "comments": [
+    {
+      "username": "celeste13",
+      "postId": 2,
+      "content": "Hola que tal",
+      "created_at": "Sun Sep 18 15:09:24 2022",
+      "id": 1
+    },
+    {
+      "username": "celeste13",
+      "postId": 1,
+      "content": "Hola",
+      "created_at": "Sun Sep 18 15:26:59 2022",
+      "id": 2
+    },
+    {
+      "username": "isra1610",
+      "postId": 2,
+      "content": "Bien y tu",
+      "created_at": "Sun Sep 18 15:32:59 2022",
+      "id": 3
+    },
+    {
+      "username": "isra1610",
+      "postId": 1,
+      "content": "Hola",
+      "created_at": "Sun Sep 18 15:33:12 2022",
+      "id": 4
+    },
+    {
+      "username": "isra1610",
+      "postId": 3,
+      "content": "React native es genial",
+      "created_at": "Sun Sep 18 19:25:10 2022",
+      "id": 5
     }
   ],
   "login": {

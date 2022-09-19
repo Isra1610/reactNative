@@ -33,7 +33,6 @@ const Register = ({ navigation }) => {
     })
 
     const onSubmit = data => register(data, today)
-    // const onSubmit = data => console.log(data)
 
     return (
         <View style={styles.container}>

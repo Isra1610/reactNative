@@ -11,21 +11,23 @@ import api from "../utils/api"
 export default function App({ navigation }) {
     const [dataUser, setDataUser] = useState({})
     const [posts, setPosts] = useState([])
+    const [comments, setComments] = useState([])
 
     const { logout } = useContext(AuthContext)
 
-    const getData = async () => {
+    const getPost = async () => {
         let userInfo = await AsyncStorage.getItem('userInfo')
         userInfo = JSON.parse(userInfo)
+        await axios.get(`${api}/posts?userId=${userInfo.id}&_embed=comments`).then(res => setPosts(res.data)).catch(e => {
+            console.log(`error ${e}`)
+        })
+        await axios.get(`${api}/comments?username=${userInfo.username}`).then(res => setComments(res.data)).catch(e => {
+            console.log(`error ${e}`)
+        })
         setDataUser(userInfo)
     }
 
-    const getPost = async () => {
-        await axios.get(`${api}/posts`).then(res => setPosts(res.data))
-    }
-
     useEffect(() => {
-        getData()
         getPost()
     }, [])
 
@@ -63,7 +65,7 @@ export default function App({ navigation }) {
                         <Text style={[styles.text, styles.subText]}>Nacimiento</Text>
                     </View>
                     <View style={styles.statsBox}>
-                        <Text style={[styles.text, { fontSize: 24 }]}>10</Text>
+                        <Text style={[styles.text, { fontSize: 24 }]}>{comments?.length}</Text>
                         <Text style={[styles.text, styles.subText]}>Comentarios</Text>
                     </View>
                 </View>
@@ -90,7 +92,7 @@ export default function App({ navigation }) {
                         <View style={styles.activityIndicator}></View>
                         <View style={{ width: 250 }}>
                             <Text style={[styles.text, { color: "#41444B", fontWeight: "300" }]}>
-                                Ultimo post: <Text style={{ fontWeight: "400" }}>test1</Text> y <Text style={{ fontWeight: "400" }}>test2</Text>
+                                Ultimo post: <Text style={{ fontWeight: "400" }}>{posts[posts?.length - 1]?.title}</Text>
                             </Text>
                         </View>
                     </View>
@@ -99,7 +101,7 @@ export default function App({ navigation }) {
                         <View style={styles.activityIndicator}></View>
                         <View style={{ width: 250 }}>
                             <Text style={[styles.text, { color: "#41444B", fontWeight: "300" }]}>
-                                Ultimo comentario: <Text style={{ fontWeight: "400" }}>this is a test 3</Text>
+                                Ultimo comentario: <Text style={{ fontWeight: "400" }}>{comments[comments?.length - 1]?.content}</Text>
                             </Text>
                         </View>
                     </View>
